@@ -19,6 +19,7 @@
 #include <mutex>
 #include <string>
 #include <functional>
+#include <cmath>
 
 #include "XsensMT.h"
 #include "xsbaud.h"
@@ -356,6 +357,27 @@ bool XsensMT::open(yarp::os::Searchable &config)
         }
     }
 
+    // XsSize s0=0, s1=1, s2=2, nrows=3, ncols=3;
+    // XsMatrix RotMat = setRotation(0, 0, 0);
+    // yDebug() << RotMat.value(s0, s0) << RotMat.value(s0, s1) << RotMat.value(s0, s2);
+    // yDebug() << RotMat.value(s1, s0) << RotMat.value(s1, s1) << RotMat.value(s1, s2);
+    // yDebug() << RotMat.value(s2, s0) << RotMat.value(s2, s1) << RotMat.value(s2, s2);
+    // // XsMatrix RotMat(nrows, ncols);
+    // // XsReal v1=1, v2=-1;
+    // // RotMat.zero();
+    // // yDebug() << "======== number of rows: " << RotMat.rows();
+    // // yDebug() << "======== number of cols: " << RotMat.cols();
+    // // RotMat.setValue(s2, s0, v2);
+    // // RotMat.setValue(s1, s1, v1);
+    // // RotMat.setValue(s0, s2, v2);
+    // if(m_xsensDevice->setAlignmentRotationMatrix(XAF_Local, RotMat))
+    // {
+    //     yDebug() << "============ set L' matrix";
+    // } else 
+    // {
+    //     yError() << "============ failed to set L' matrix";
+    // }
+
     // Put the device in measurement mode
     yInfo() << "xsensmt: Putting device into measurement mode.";
     if (!m_xsensDevice->gotoMeasurement())
@@ -574,4 +596,28 @@ bool XsensMT::getThreeAxisMagnetometerMeasure(size_t sens_index, yarp::sig::Vect
 
     out.resize(3);
     return m_callback.packetBuffer.mag.getData(out,timestamp);
+}
+
+XsMatrix XsensMT::setRotation(double roll, double pitch, double yaw)
+{
+    XsSize s0=0, s1=1, s2=2, nrows=3, ncols=3;
+    XsReal sinRoll=sin(roll * M_PI / 180.0), cosRoll=cos(roll * M_PI / 180.0);
+    XsReal sinPitch=sin(pitch * M_PI / 180.0), cosPitch=cos(pitch * M_PI / 180.0);
+    XsReal sinYaw=sin(yaw * M_PI / 180.0), cosYaw=cos(yaw * M_PI / 180.0);
+    XsMatrix RotMat(nrows, ncols);
+    // | cos(theta)   0   sin(theta) |
+    // |     0        1       0      |
+    // | -sin(theta)  0   cos(theta) |
+    RotMat.zero();
+    RotMat.setValue(s0, s0, cosYaw * cosPitch);
+    RotMat.setValue(s0, s1, cosYaw * sinPitch * sinRoll - sinYaw * cosRoll);
+    RotMat.setValue(s0, s2, cosYaw * sinPitch * cosRoll + sinYaw * sinRoll);
+    RotMat.setValue(s1, s0, sinYaw * cosPitch);
+    RotMat.setValue(s1, s1, sinYaw * sinPitch * sinRoll + cosYaw * cosRoll);
+    RotMat.setValue(s1, s2, sinYaw * sinPitch * cosRoll - cosYaw * sinRoll);
+    RotMat.setValue(s2, s0, -sinPitch);
+    RotMat.setValue(s2, s1, cosPitch * sinRoll);
+    RotMat.setValue(s2, s2, cosPitch * cosRoll);
+    
+    return RotMat;
 }

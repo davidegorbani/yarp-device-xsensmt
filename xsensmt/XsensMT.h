@@ -321,6 +321,8 @@ public:
 
     virtual yarp::os::Stamp getLastInputStamp() override;
 
+    XsMatrix setRotation(double roll, double pitch, double yaw);
+
 private:
     yarp::dev::MAS_status genericGetStatus(size_t sens_index) const;
     bool genericGetSensorName(size_t sens_index, std::string &name) const;
