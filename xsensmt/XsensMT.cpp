@@ -350,19 +350,29 @@ bool XsensMT::open(yarp::os::Searchable &config)
             return false;
         }
 
-        XsSize s0=0, s1=1, s2=2, nrows=3, ncols=3;
-        const XsMatrix RotMat = setRotation(0, 90, 0);
+        // XsSize s0=0, s1=1, s2=2, nrows=3, ncols=3;
+        // const XsMatrix RotMat = setRotation(0, 0, 0);
         
-        if(m_xsensDevice->setAlignmentRotationMatrix(XAF_Local, RotMat))
-        {
-            yDebug() << "============ set L' matrix to:";
-            yDebug() << RotMat.value(s0, s0) << RotMat.value(s0, s1) << RotMat.value(s0, s2);
-            yDebug() << RotMat.value(s1, s0) << RotMat.value(s1, s1) << RotMat.value(s1, s2);
-            yDebug() << RotMat.value(s2, s0) << RotMat.value(s2, s1) << RotMat.value(s2, s2);
-        } else 
-        {
-            yError() << "============ failed to set L' matrix";
-        }
+        // if(m_xsensDevice->setAlignmentRotationMatrix(XAF_Local, RotMat))
+        // {
+        //     yDebug() << "============ set L' matrix to:";
+        //     yDebug() << RotMat.value(s0, s0) << RotMat.value(s0, s1) << RotMat.value(s0, s2);
+        //     yDebug() << RotMat.value(s1, s0) << RotMat.value(s1, s1) << RotMat.value(s1, s2);
+        //     yDebug() << RotMat.value(s2, s0) << RotMat.value(s2, s1) << RotMat.value(s2, s2);
+        // } else 
+        // {
+        //     yError() << "============ failed to set L' matrix";
+        // }
+        // if(m_xsensDevice->setAlignmentRotationMatrix(XAF_Sensor, RotMat))
+        // {
+        //     yDebug() << "============ set L' matrix to:";
+        //     yDebug() << RotMat.value(s0, s0) << RotMat.value(s0, s1) << RotMat.value(s0, s2);
+        //     yDebug() << RotMat.value(s1, s0) << RotMat.value(s1, s1) << RotMat.value(s1, s2);
+        //     yDebug() << RotMat.value(s2, s0) << RotMat.value(s2, s1) << RotMat.value(s2, s2);
+        // } else 
+        // {
+        //     yError() << "============ failed to set L' matrix";
+        // }
 
         if (!m_xsensDevice->setOutputConfiguration(configArray))
         {
