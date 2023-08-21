@@ -349,11 +349,33 @@ bool XsensMT::open(yarp::os::Searchable &config)
             return false;
         }
 
+        bool enable{false};
+        if (m_xsensDevice->setInitialBiasUpdateEnabled(enable))
+        {
+            yDebug("successfully set initial bias update");
+        }
+        else
+        {
+            yError("failed to set inital bias update");
+        }
+
         if (!m_xsensDevice->setOutputConfiguration(configArray))
         {
             yError("xsensmt: Could not configure device. Aborting.");
             return false;
         }
+    }
+
+    // Set the device in no rotation mode
+    uint16_t noRotationTime = 30;
+    
+    if (m_xsensDevice->isInitialBiasUpdateEnabled())
+    {
+        yDebug("xsensmt: initial bias is true");
+    }
+    else
+    {
+        yDebug("xsensmt: initial bias false");
     }
 
     // Put the device in measurement mode
@@ -362,6 +384,15 @@ bool XsensMT::open(yarp::os::Searchable &config)
     {
         yError("xsensmt: Could not put device into measurement mode. Aborting.");
         return false;
+    }
+
+    if (m_xsensDevice->setNoRotation(noRotationTime))
+    {
+        yDebug("xsensmt: Performing Gyro Bias estimation for %d s, please keep the IMU still", noRotationTime);
+    }
+    else
+    {
+        yError("xsensmt: Could not perform Gyro Bias estimation");
     }
 
     // Create and attach callback handler to device
